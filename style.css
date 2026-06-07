@@ -1,0 +1,16 @@
+body{
+    font-family: Arial;
+}
+
+.container{
+    display:flex;
+    gap:30px;
+}
+
+.controls{
+    width:300px;
+}
+
+canvas{
+    border:1px solid black;
+}
