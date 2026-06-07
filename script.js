@@ -1,17 +1,17 @@
 const pos = {
 
-A:[100,100],
-B:[100,350],
-C:[350,100],
-D:[200,570],
-E:[370,350],
-F:[580,190],
-G:[470,590],
-H:[620,430],
-I:[810,100],
-J:[810,570],
-K:[880,300],
-L:[1040,480]
+A:[99,88],
+B:[100,349],
+C:[356,85],
+D:[199,569],
+E:[369,349],
+F:[585,190],
+G:[468,589],
+H:[624,429],
+I:[809,85],
+J:[809,569],
+K:[876,294],
+L:[1036,480]
 
 };
 
@@ -56,25 +56,23 @@ const narrow = [
 
 function hasFeature(a,b,list){
 
-    return list.some(
-        x =>
-        (x[0]==a&&x[1]==b) ||
-        (x[0]==b&&x[1]==a)
+    return list.some(x =>
+        (x[0]===a && x[1]===b) ||
+        (x[0]===b && x[1]===a)
     );
-
 }
 
 function cost(a,b){
 
-    let base = roads[a][b];
+    const base = roads[a][b];
 
-    let slope =
+    const slope =
     Number(document.getElementById("slope").value);
 
-    let stair =
+    const stair =
     Number(document.getElementById("stairs").value);
 
-    let narrowW =
+    const narrowW =
     Number(document.getElementById("narrow").value);
 
     let p = 0;
@@ -88,19 +86,19 @@ function cost(a,b){
     if(hasFeature(a,b,narrow))
         p += narrowW/10;
 
-    return base+p;
+    return base + p;
 }
 
 function dijkstra(start,end){
 
-    let dist={};
-    let prev={};
-    let unvisited=[];
+    const dist = {};
+    const prev = {};
+    const unvisited = [];
 
-    Object.keys(roads).forEach(n=>{
+    Object.keys(roads).forEach(node=>{
 
-        dist[n]=Infinity;
-        unvisited.push(n);
+        dist[node]=Infinity;
+        unvisited.push(node);
 
     });
 
@@ -112,13 +110,14 @@ function dijkstra(start,end){
             (a,b)=>dist[a]-dist[b]
         );
 
-        let cur=unvisited.shift();
+        const cur = unvisited.shift();
 
-        if(cur===end) break;
+        if(cur===end)
+            break;
 
-        for(let nxt in roads[cur]){
+        for(const nxt in roads[cur]){
 
-            let nd =
+            const nd =
             dist[cur]
             + cost(cur,nxt);
 
@@ -131,7 +130,8 @@ function dijkstra(start,end){
         }
     }
 
-    let path=[];
+    const path=[];
+
     let cur=end;
 
     while(cur){
@@ -144,112 +144,111 @@ function dijkstra(start,end){
     return path;
 }
 
-const canvas =
-document.getElementById("mapCanvas");
+function drawPath(path){
 
-const ctx =
-canvas.getContext("2d");
+    const svg =
+    document.getElementById("overlay");
 
-function draw(path=[]){
-
-    ctx.clearRect(
-        0,0,
-        canvas.width,
-        canvas.height
-    );
-
-    for(let node in roads){
-
-        for(let nxt in roads[node]){
-
-            let [x1,y1]=pos[node];
-            let [x2,y2]=pos[nxt];
-
-            ctx.beginPath();
-            ctx.moveTo(x1,y1);
-            ctx.lineTo(x2,y2);
-            ctx.stroke();
-
-        }
-    }
-
-    ctx.strokeStyle="red";
-    ctx.lineWidth=6;
+    svg.innerHTML="";
 
     for(let i=0;i<path.length-1;i++){
 
-        let [x1,y1]=pos[path[i]];
-        let [x2,y2]=pos[path[i+1]];
+        const [x1,y1] =
+        pos[path[i]];
 
-        ctx.beginPath();
-        ctx.moveTo(x1,y1);
-        ctx.lineTo(x2,y2);
-        ctx.stroke();
+        const [x2,y2] =
+        pos[path[i+1]];
 
+        const line =
+        document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "line");
+
+        line.setAttribute("x1",x1);
+        line.setAttribute("y1",y1);
+        line.setAttribute("x2",x2);
+        line.setAttribute("y2",y2);
+
+        line.setAttribute("stroke","red");
+        line.setAttribute("stroke-width","8");
+        line.setAttribute("stroke-linecap","round");
+
+        svg.appendChild(line);
     }
 
-    ctx.lineWidth=1;
-    ctx.strokeStyle="black";
+    const startCircle =
+    document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "circle");
 
-    for(let node in pos){
+    const [sx,sy]=pos[path[0]];
 
-        let [x,y]=pos[node];
+    startCircle.setAttribute("cx",sx);
+    startCircle.setAttribute("cy",sy);
+    startCircle.setAttribute("r","18");
+    startCircle.setAttribute("fill","lime");
 
-        ctx.beginPath();
-        ctx.arc(x,y,35,0,Math.PI*2);
-        ctx.stroke();
+    svg.appendChild(startCircle);
 
-        ctx.font="20px Arial";
-        ctx.fillText(node,x-7,y+7);
+    const endCircle =
+    document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "circle");
 
-    }
+    const [ex,ey]=
+    pos[path[path.length-1]];
+
+    endCircle.setAttribute("cx",ex);
+    endCircle.setAttribute("cy",ey);
+    endCircle.setAttribute("r","18");
+    endCircle.setAttribute("fill","blue");
+
+    svg.appendChild(endCircle);
 }
 
 function calculatePath(){
 
-    let start =
+    const start =
     document.getElementById("start").value;
 
-    let end =
+    const end =
     document.getElementById("end").value;
 
-    let path =
+    const path =
     dijkstra(start,end);
 
-    draw(path);
+    drawPath(path);
 
     document.getElementById(
-        "result"
-    ).innerText=
+    "result").innerHTML =
+    "추천 경로<br><br>" +
     path.join(" → ");
 }
 
-Object.keys(pos).forEach(n=>{
+Object.keys(pos).forEach(node=>{
 
-    start.innerHTML+=
-    `<option>${n}</option>`;
+    document.getElementById("start")
+    .innerHTML +=
+    `<option>${node}</option>`;
 
-    end.innerHTML+=
-    `<option>${n}</option>`;
+    document.getElementById("end")
+    .innerHTML +=
+    `<option>${node}</option>`;
 
 });
 
-["slope","stairs","narrow"]
+document.getElementById("end").value="L";
+
+["slope","stairs","narrow",
+"start","end"]
 .forEach(id=>{
 
     document.getElementById(id)
     .addEventListener(
         "input",
-        ()=>{
-            document.getElementById(
-                id+"Val"
-            ).innerText=
-            document.getElementById(id).value;
-
-            calculatePath();
-        }
+        calculatePath
     );
 
 });
 
-draw();
+calculatePath();
