@@ -57,9 +57,23 @@ const narrow = [
 function hasFeature(a,b,list){
 
     return list.some(x =>
-        (x[0]===a && x[1]===b) ||
-        (x[0]===b && x[1]===a)
+        (x[0] === a && x[1] === b) ||
+        (x[0] === b && x[1] === a)
     );
+
+}
+
+function updateSliderValues(){
+
+    document.getElementById("slopeVal").textContent =
+    document.getElementById("slope").value;
+
+    document.getElementById("stairsVal").textContent =
+    document.getElementById("stairs").value;
+
+    document.getElementById("narrowVal").textContent =
+    document.getElementById("narrow").value;
+
 }
 
 function cost(a,b){
@@ -75,18 +89,19 @@ function cost(a,b){
     const narrowW =
     Number(document.getElementById("narrow").value);
 
-    let p = 0;
+    let penalty = 0;
 
     if(hasFeature(a,b,slopes))
-        p += slope/10;
+        penalty += slope / 10;
 
     if(hasFeature(a,b,stairs))
-        p += stair/10;
+        penalty += stair / 10;
 
     if(hasFeature(a,b,narrow))
-        p += narrowW/10;
+        penalty += narrowW / 10;
 
-    return base + p;
+    return base + penalty;
+
 }
 
 function dijkstra(start,end){
@@ -95,53 +110,53 @@ function dijkstra(start,end){
     const prev = {};
     const unvisited = [];
 
-    Object.keys(roads).forEach(node=>{
+    Object.keys(roads).forEach(node => {
 
-        dist[node]=Infinity;
+        dist[node] = Infinity;
         unvisited.push(node);
 
     });
 
-    dist[start]=0;
+    dist[start] = 0;
 
-    while(unvisited.length){
+    while(unvisited.length > 0){
 
         unvisited.sort(
-            (a,b)=>dist[a]-dist[b]
+            (a,b) => dist[a] - dist[b]
         );
 
         const cur = unvisited.shift();
 
-        if(cur===end)
+        if(cur === end)
             break;
 
         for(const nxt in roads[cur]){
 
             const nd =
-            dist[cur]
-            + cost(cur,nxt);
+            dist[cur] + cost(cur,nxt);
 
-            if(nd<dist[nxt]){
+            if(nd < dist[nxt]){
 
-                dist[nxt]=nd;
-                prev[nxt]=cur;
+                dist[nxt] = nd;
+                prev[nxt] = cur;
 
             }
         }
     }
 
-    const path=[];
+    const path = [];
 
-    let cur=end;
+    let cur = end;
 
     while(cur){
 
         path.unshift(cur);
-        cur=prev[cur];
+        cur = prev[cur];
 
     }
 
     return path;
+
 }
 
 function drawPath(path){
@@ -149,7 +164,7 @@ function drawPath(path){
     const svg =
     document.getElementById("overlay");
 
-    svg.innerHTML="";
+    svg.innerHTML = "";
 
     for(let i=0;i<path.length-1;i++){
 
@@ -161,8 +176,9 @@ function drawPath(path){
 
         const line =
         document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "line");
+            "http://www.w3.org/2000/svg",
+            "line"
+        );
 
         line.setAttribute("x1",x1);
         line.setAttribute("y1",y1);
@@ -176,12 +192,14 @@ function drawPath(path){
         svg.appendChild(line);
     }
 
+    const [sx,sy] =
+    pos[path[0]];
+
     const startCircle =
     document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "circle");
-
-    const [sx,sy]=pos[path[0]];
+        "http://www.w3.org/2000/svg",
+        "circle"
+    );
 
     startCircle.setAttribute("cx",sx);
     startCircle.setAttribute("cy",sy);
@@ -190,13 +208,14 @@ function drawPath(path){
 
     svg.appendChild(startCircle);
 
+    const [ex,ey] =
+    pos[path[path.length-1]];
+
     const endCircle =
     document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "circle");
-
-    const [ex,ey]=
-    pos[path[path.length-1]];
+        "http://www.w3.org/2000/svg",
+        "circle"
+    );
 
     endCircle.setAttribute("cx",ex);
     endCircle.setAttribute("cy",ey);
@@ -204,9 +223,12 @@ function drawPath(path){
     endCircle.setAttribute("fill","blue");
 
     svg.appendChild(endCircle);
+
 }
 
 function calculatePath(){
+
+    updateSliderValues();
 
     const start =
     document.getElementById("start").value;
@@ -214,41 +236,78 @@ function calculatePath(){
     const end =
     document.getElementById("end").value;
 
+    if(start === end){
+
+        document.getElementById("result")
+        .innerHTML =
+        "출발지와 도착지가 같습니다.";
+
+        return;
+    }
+
     const path =
     dijkstra(start,end);
 
     drawPath(path);
 
-    document.getElementById(
-    "result").innerHTML =
-    "추천 경로<br><br>" +
+    document.getElementById("result")
+    .innerHTML =
+    "<b>추천 경로</b><br><br>" +
     path.join(" → ");
+
 }
 
-Object.keys(pos).forEach(node=>{
+window.onload = () => {
+
+    const startSelect =
+    document.getElementById("start");
+
+    const endSelect =
+    document.getElementById("end");
+
+    Object.keys(pos).forEach(node => {
+
+        startSelect.innerHTML +=
+        `<option value="${node}">${node}</option>`;
+
+        endSelect.innerHTML +=
+        `<option value="${node}">${node}</option>`;
+
+    });
+
+    startSelect.value = "A";
+    endSelect.value = "L";
 
     document.getElementById("start")
-    .innerHTML +=
-    `<option>${node}</option>`;
+    .addEventListener(
+        "change",
+        calculatePath
+    );
 
     document.getElementById("end")
-    .innerHTML +=
-    `<option>${node}</option>`;
+    .addEventListener(
+        "change",
+        calculatePath
+    );
 
-});
-
-document.getElementById("end").value="L";
-
-["slope","stairs","narrow",
-"start","end"]
-.forEach(id=>{
-
-    document.getElementById(id)
+    document.getElementById("slope")
     .addEventListener(
         "input",
         calculatePath
     );
 
-});
+    document.getElementById("stairs")
+    .addEventListener(
+        "input",
+        calculatePath
+    );
 
-calculatePath();
+    document.getElementById("narrow")
+    .addEventListener(
+        "input",
+        calculatePath
+    );
+
+    calculatePath();
+
+};
