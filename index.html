@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>교통약자 경로 추천</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>교통약자 경로 추천</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -11,45 +11,48 @@
 
 <div class="container">
 
-    <div class="controls">
+<div class="controls">
 
-        <h3>출발지</h3>
-        <select id="start"></select>
+<label>출발지</label>
+<select id="start"></select>
 
-        <h3>도착지</h3>
-        <select id="end"></select>
+<label>도착지</label>
+<select id="end"></select>
 
-        <h3>경사 주의도</h3>
-        <input type="range" id="slope" min="0" max="100" value="50">
-        <span id="slopeVal">50</span>
+<br><br>
 
-        <h3>계단 주의도</h3>
-        <input type="range" id="stairs" min="0" max="100" value="50">
-        <span id="stairsVal">50</span>
+<label>경사 주의도</label>
+<input type="range" id="slope" min="0" max="100" value="50">
+<span id="slopeVal">50</span>
 
-        <h3>좁은 길 주의도</h3>
-        <input type="range" id="narrow" min="0" max="100" value="50">
-        <span id="narrowVal">50</span>
+<br><br>
 
-        <br><br>
+<label>계단 주의도</label>
+<input type="range" id="stairs" min="0" max="100" value="50">
+<span id="stairsVal">50</span>
 
-        <button onclick="calculatePath()">
-            경로 계산
-        </button>
+<br><br>
 
-        <h3>결과</h3>
-        <p id="result"></p>
+<label>좁은 길 주의도</label>
+<input type="range" id="narrow" min="0" max="100" value="50">
+<span id="narrowVal">50</span>
 
-    </div>
+<br><br>
 
-    <div class="map-area">
+<div id="result"></div>
 
-        <canvas id="mapCanvas"
-                width="1100"
-                height="700">
-        </canvas>
+</div>
 
-    </div>
+<div class="map-container">
+
+<img src="map.png" id="mapImage">
+
+<svg id="overlay"
+viewBox="0 0 1114 706"
+preserveAspectRatio="none">
+</svg>
+
+</div>
 
 </div>
 
