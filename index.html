@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>교통약자 경로 추천</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>교통약자 맞춤 경로 추천 시스템</h1>
+
+<div class="container">
+
+    <div class="controls">
+
+        <h3>출발지</h3>
+        <select id="start"></select>
+
+        <h3>도착지</h3>
+        <select id="end"></select>
+
+        <h3>경사 주의도</h3>
+        <input type="range" id="slope" min="0" max="100" value="50">
+        <span id="slopeVal">50</span>
+
+        <h3>계단 주의도</h3>
+        <input type="range" id="stairs" min="0" max="100" value="50">
+        <span id="stairsVal">50</span>
+
+        <h3>좁은 길 주의도</h3>
+        <input type="range" id="narrow" min="0" max="100" value="50">
+        <span id="narrowVal">50</span>
+
+        <br><br>
+
+        <button onclick="calculatePath()">
+            경로 계산
+        </button>
+
+        <h3>결과</h3>
+        <p id="result"></p>
+
+    </div>
+
+    <div class="map-area">
+
+        <canvas id="mapCanvas"
+                width="1100"
+                height="700">
+        </canvas>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
